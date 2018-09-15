@@ -13,22 +13,24 @@ import org.apache.commons.dbcp2.BasicDataSource;
  * @author Administrator
  *
  */
-public class DBUtil {
+public class Config {
 	
-	static String className;
-	static String url;
-	static String username;
-	static String password;
-	static String initSize;
-	static String maxActive;
-	static BasicDataSource bds;
-	
+	public static String className;
+	public static String url;
+	public static String username;
+	public static String password;
+	public static String initSize;
+	public static String maxActive;
+	public static BasicDataSource bds;
+	public static int port;
 	static {
 		bds = new BasicDataSource();
 		Properties p = new Properties();
-		InputStream inStream = DBUtil.class.getClassLoader().getResourceAsStream("db.properties");
+		InputStream inStream = Config.class.getClassLoader().getResourceAsStream("db.properties");
 		try {
 			p.load(inStream);
+			
+			//数据库设置
 			bds.setDriverClassName(p.getProperty("driver"));
 			bds.setUrl(p.getProperty("url"));
 			bds.setUsername(p.getProperty("username"));
@@ -36,6 +38,8 @@ public class DBUtil {
 			bds.setInitialSize(Integer.parseInt(p.getProperty("initSize")));
 			bds.setMaxTotal(Integer.parseInt(p.getProperty("maxActive")));
 			
+			//prot
+			port = Integer.parseInt(p.getProperty("port"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

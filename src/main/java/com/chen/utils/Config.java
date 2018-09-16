@@ -26,7 +26,7 @@ public class Config {
 	static {
 		bds = new BasicDataSource();
 		Properties p = new Properties();
-		InputStream inStream = Config.class.getClassLoader().getResourceAsStream("db.properties");
+		InputStream inStream = Config.class.getClassLoader().getResourceAsStream("config.properties");
 		try {
 			p.load(inStream);
 			

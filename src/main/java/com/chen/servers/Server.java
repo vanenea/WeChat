@@ -19,19 +19,30 @@ import com.chen.utils.Config;
  */
 public class Server {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
-	private static double count = 0;
+	private static long count = 0;
+	private ServerSocket serverSocket;
 	
 	public void start() {
 		LOGGER.info("启动服务器");
 		try {
-			ServerSocket serverSocket = new ServerSocket(Config.port);
+			serverSocket = new ServerSocket(Config.port);
 			ExecutorService pool = Executors.newFixedThreadPool(10);
 			while(true) {
 				Socket socket = serverSocket.accept();
-				
-			}
+				LOGGER.info("客户端连接进来");
+				count ++;
+				LOGGER.info("当前在线人数:"+count);
+				}
 		} catch (IOException e) {
-			LOGGER.error("启动服务器失败",e.getMessage());
+			LOGGER.error("启动服务器失败",e);
+		} finally {
+			if(!serverSocket.isClosed()) {
+				try {
+					serverSocket.close();
+				} catch (IOException e) {
+					LOGGER.error("关闭服务器异常",e);
+				}
+			}
 		}
 	}
 	

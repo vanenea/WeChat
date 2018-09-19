@@ -5,6 +5,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -12,7 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.chen.utils.Config;
+import com.chen.utils.IOUtils;
 import com.chen.utils.RequestCommand;
+import com.chen.utils.ResponseCommand;
 
 /**
  * 服务端
@@ -159,8 +165,38 @@ public class Server {
 		}
 
 		private void doLogin() {
-			// TODO Auto-generated method stub
-			
+			String userName = IOUtils.readString(in);
+			String password = IOUtils.readString(in);
+			try {
+				Connection con = Config.getConnection();
+				String sql = "select id,username,password from user where userName=?";
+				PreparedStatement ps = con.prepareStatement(sql);
+				ps.setString(1, userName);
+				ResultSet rs = ps.executeQuery();
+				if(rs.next()) {
+					Integer id = rs.getInt(1);
+					String word = rs.getString(3);
+					if(word.equals(password)) {
+						LOGGER.info("登录成功");
+						IOUtils.writeShort(out, ResponseCommand.LOGIN_RESPONSE);
+						IOUtils.writeString(out, "登录成功");
+						
+						
+					} else {
+						LOGGER.info("密码错误");
+						IOUtils.writeShort(out, ResponseCommand.LOGIN_RESPONSE);
+						IOUtils.writeString(out, "密码错误");
+					}
+				} else {
+					LOGGER.error("账户不存在");
+					IOUtils.writeShort(out, ResponseCommand.LOGIN_RESPONSE);
+					IOUtils.writeString(out, "用户名不存在");
+				}
+			} catch (SQLException e) {
+				LOGGER.error("链接数据库异常", e);
+				IOUtils.writeShort(out, ResponseCommand.LOGIN_RESPONSE);
+				IOUtils.writeString(out, "服务器异常，请稍后重试");
+			}
 		}
 		
 	}

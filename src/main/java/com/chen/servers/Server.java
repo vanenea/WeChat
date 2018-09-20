@@ -9,12 +9,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.chen.model.User;
 import com.chen.utils.Config;
 import com.chen.utils.IOUtils;
 import com.chen.utils.RequestCommand;
@@ -29,6 +32,7 @@ public class Server {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
 	private static long count = 0;
 	private ServerSocket serverSocket;
+	public static List<User> users = new ArrayList<User>();
 	
 	public void start() {
 		LOGGER.info("启动服务器");
@@ -45,6 +49,8 @@ public class Server {
 		} catch (IOException e) {
 			LOGGER.error("启动服务器失败",e);
 		} finally {
+			count --;
+			LOGGER.info("当前在线人数:"+count);
 			if(!serverSocket.isClosed()) {
 				try {
 					serverSocket.close();
@@ -67,6 +73,8 @@ public class Server {
 		private InputStream in;
 		//输出流
 		private OutputStream out;
+		
+		private User user;
 		
 		public HandServer(Socket socket) {
 			this.socket = socket;
@@ -126,6 +134,8 @@ public class Server {
 				}
 			} catch (Exception e) {
 				LOGGER.error("", e);
+			} finally {
+				Server.users.remove(user);
 			}
 		}
 
@@ -180,7 +190,11 @@ public class Server {
 						LOGGER.info("登录成功");
 						IOUtils.writeShort(out, ResponseCommand.LOGIN_RESPONSE);
 						IOUtils.writeString(out, "登录成功");
-						
+						user = new User();
+						user.setId(id);
+						user.setUsername(userName);
+						user.setPassword(password);
+						Server.users.add(user);
 						
 					} else {
 						LOGGER.info("密码错误");

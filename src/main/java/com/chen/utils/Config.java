@@ -19,8 +19,8 @@ public class Config {
 	public static String url;
 	public static String username;
 	public static String password;
-	public static String initSize;
-	public static String maxActive;
+	public static int initSize;
+	public static int maxActive;
 	public static BasicDataSource bds;
 	public static int port;
 	static {
@@ -29,14 +29,19 @@ public class Config {
 		InputStream inStream = Config.class.getClassLoader().getResourceAsStream("config.properties");
 		try {
 			p.load(inStream);
-			
+			className = p.getProperty("driver");
+			url = p.getProperty("url");
+			username = p.getProperty("username");
+			password = p.getProperty("password");
+			initSize = Integer.parseInt(p.getProperty("initSize"));
+			maxActive = Integer.parseInt(p.getProperty("maxActive"));
 			//数据库设置
-			bds.setDriverClassName(p.getProperty("driver"));
-			bds.setUrl(p.getProperty("url"));
-			bds.setUsername(p.getProperty("username"));
-			bds.setPassword(p.getProperty("password"));
-			bds.setInitialSize(Integer.parseInt(p.getProperty("initSize")));
-			bds.setMaxTotal(Integer.parseInt(p.getProperty("maxActive")));
+			bds.setDriverClassName(className);
+			bds.setUrl(url);
+			bds.setUsername(username);
+			bds.setPassword(password);
+			bds.setInitialSize(initSize);
+			bds.setMaxTotal(maxActive);
 			
 			//prot
 			port = Integer.parseInt(p.getProperty("port"));

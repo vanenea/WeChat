@@ -30,7 +30,7 @@ public class IOUtils {
 			if((ch1 | ch2) < 0) {
 				throw new EOFException();
 			}
-			int len = ch1<<8 + ch2;
+			int len = (ch1<<8) + ch2;
 			byte[] data = new byte[len];
 			in.read(data);
 			return new String(data,"UTF-8");

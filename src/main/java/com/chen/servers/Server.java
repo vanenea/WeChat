@@ -189,7 +189,7 @@ public class Server {
 					if(word.equals(password)) {
 						LOGGER.info("登录成功");
 						IOUtils.writeShort(out, ResponseCommand.LOGIN_RESPONSE);
-						IOUtils.writeString(out, "登录成功");
+						IOUtils.writeString(out, "loginSuccess");
 						user = new User();
 						user.setId(id);
 						user.setUsername(userName);

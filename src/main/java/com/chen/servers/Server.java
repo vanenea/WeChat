@@ -35,10 +35,11 @@ public class Server {
 	public static List<User> users = new ArrayList<User>();
 	
 	public void start() {
-		LOGGER.info("启动服务器");
+		LOGGER.info("启动服务器中...");
 		try {
 			serverSocket = new ServerSocket(Config.port);
 			ExecutorService pool = Executors.newFixedThreadPool(10);
+			LOGGER.info("服务器启动成功");
 			while(true) {
 				Socket socket = serverSocket.accept();
 				pool.execute(new HandServer(socket));

@@ -54,6 +54,19 @@ public class IOUtils {
 	}
 	
 	/**
+	 * 读取short值
+	 * @param in
+	 * @return
+	 */
+	public static short readShort(InputStream in) {
+		DataInputStream dis = new DataInputStream(in);
+		try {
+			return dis.readShort();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+	/**
 	 * 写short值
 	 * @param out
 	 */

@@ -9,8 +9,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -32,7 +32,8 @@ public class Server {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Server.class);
 	private static long count = 0;
 	private ServerSocket serverSocket;
-	public static List<User> users = new ArrayList<User>();
+	public static Map<String, User> users = new HashMap<String, User>();
+
 	
 	public void start() {
 		LOGGER.info("启动服务器中...");
@@ -85,8 +86,8 @@ public class Server {
 			try {
 				in = socket.getInputStream();
 				out = socket.getOutputStream();
-				int command = -1;
-				while((command = in.read())!=-1) {
+				short command = -1;
+				while((command = IOUtils.readShort(in))!=-1) {
 					switch (command) {
 					//登陆操作
 					case RequestCommand.LOGIN:
@@ -136,7 +137,8 @@ public class Server {
 			} catch (Exception e) {
 				LOGGER.error("", e);
 			} finally {
-				Server.users.remove(user);
+				users.remove(user.getUsername());
+				reFreshList();
 			}
 		}
 
@@ -195,8 +197,9 @@ public class Server {
 						user.setId(id);
 						user.setUsername(userName);
 						user.setPassword(password);
-						Server.users.add(user);
-						
+						user.setSocket(socket);
+						users.put(userName, user);
+						reFreshList();
 					} else {
 						LOGGER.info("密码错误");
 						IOUtils.writeShort(out, ResponseCommand.LOGIN_RESPONSE);
@@ -211,6 +214,21 @@ public class Server {
 				LOGGER.error("链接数据库异常", e);
 				IOUtils.writeShort(out, ResponseCommand.LOGIN_RESPONSE);
 				IOUtils.writeString(out, "服务器异常，请稍后重试");
+			}
+		}
+
+		private void reFreshList() {
+			StringBuilder sb = new StringBuilder();
+			for(String name : users.keySet()) {
+				sb.append(name+",");
+			}
+			for(User user : users.values()) {
+				try {
+					IOUtils.writeShort(user.getSocket().getOutputStream(), ResponseCommand.USER_LIST_RESPONSE);
+					IOUtils.writeString(user.getSocket().getOutputStream(), sb.toString());
+				} catch (IOException e) {
+					LOGGER.error("获取用户列表失败", e);
+				}
 			}
 		}
 		

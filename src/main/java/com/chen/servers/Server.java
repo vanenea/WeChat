@@ -219,13 +219,15 @@ public class Server {
 
 		private void reFreshList() {
 			StringBuilder sb = new StringBuilder();
+			sb.append("自己,");
 			for(String name : users.keySet()) {
 				sb.append(name+",");
 			}
-			for(User user : users.values()) {
+			for(User usr : users.values()) {
 				try {
-					IOUtils.writeShort(user.getSocket().getOutputStream(), ResponseCommand.USER_LIST_RESPONSE);
-					IOUtils.writeString(user.getSocket().getOutputStream(), sb.toString());
+					String str = sb.toString().replace(usr.getUsername()+",", "");
+					IOUtils.writeShort(usr.getSocket().getOutputStream(), ResponseCommand.USER_LIST_RESPONSE);
+					IOUtils.writeString(usr.getSocket().getOutputStream(), str);
 				} catch (IOException e) {
 					LOGGER.error("获取用户列表失败", e);
 				}

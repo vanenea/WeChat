@@ -53,7 +53,7 @@ public class Server {
 		} finally {
 			count --;
 			LOGGER.info("当前在线人数:"+count);
-			if(!serverSocket.isClosed()) {
+			if(serverSocket!=null) {
 				try {
 					serverSocket.close();
 				} catch (IOException e) {
@@ -143,12 +143,37 @@ public class Server {
 		}
 
 		private void doSendTextToOne() {
-			// TODO Auto-generated method stub
-			
+			String toUser = IOUtils.readString(in);
+			String fromUser = IOUtils.readString(in);
+			String message = IOUtils.readString(in);
+			User toUsr = users.get(toUser);
+			if(toUsr!=null) {
+				try {
+					IOUtils.writeShort(toUsr.getSocket().getOutputStream(), ResponseCommand.MESSAGE_TO_ONE_RESPONSE);
+					IOUtils.writeString(toUsr.getSocket().getOutputStream(), fromUser);
+					IOUtils.writeString(toUsr.getSocket().getOutputStream(), message);
+				} catch (IOException e) {
+					LOGGER.error("发送私聊失败", e);
+				}
+			}
 		}
 
 		private void doSendText() {
-			// TODO Auto-generated method stub
+			String fromUser = IOUtils.readString(in);
+			String message = IOUtils.readString(in);
+			
+			for(User usr : users.values()) {
+				if(user.getUsername().equals(usr.getUsername())) {
+					continue;
+				}
+				try {
+					IOUtils.writeShort(usr.getSocket().getOutputStream(), ResponseCommand.MESSAGE_TO_ALL_RESPONSE);
+					IOUtils.writeString(usr.getSocket().getOutputStream(), fromUser);
+					IOUtils.writeString(usr.getSocket().getOutputStream(), message);
+				} catch (IOException e) {
+					LOGGER.error("发送群聊消息失败", e);
+				}
+			}
 			
 		}
 

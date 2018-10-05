@@ -93,4 +93,18 @@ public class IOUtils {
 			throw new RuntimeException(e);
 		}
 	}
+	
+	/**
+	 *  写long
+	 * @param out
+	 * @param lo
+	 */
+	public synchronized static void writeLong(OutputStream out, long lo) {
+		DataOutputStream dos = new DataOutputStream(out);
+		try {
+			dos.writeLong(lo);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

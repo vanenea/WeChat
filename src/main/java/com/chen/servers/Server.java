@@ -147,7 +147,7 @@ public class Server {
 			String fromUser = IOUtils.readString(in);
 			String message = IOUtils.readString(in);
 			User toUsr = users.get(toUser);
-			if(toUsr!=null) {
+			if(toUsr!=null) { 
 				try {
 					IOUtils.writeShort(toUsr.getSocket().getOutputStream(), ResponseCommand.MESSAGE_TO_ONE_RESPONSE);
 					IOUtils.writeString(toUsr.getSocket().getOutputStream(), fromUser);
@@ -195,20 +195,19 @@ public class Server {
 		private void doSendFile() {
 			String toUser = IOUtils.readString(in);
 			String fromUser = IOUtils.readString(in);
+			String fileName = IOUtils.readString(in);
 			//文件长度
 			long length = IOUtils.readLong(in);
 			User user = users.get(toUser);
 			if(user != null) {
 				try {
 					IOUtils.writeShort(user.getSocket().getOutputStream(), ResponseCommand.FILE_TO_ONE_RESPONSE);
-					IOUtils.writeString(user.getSocket().getOutputStream(), toUser);
 					IOUtils.writeString(user.getSocket().getOutputStream(), fromUser);
+					IOUtils.writeString(user.getSocket().getOutputStream(), fileName);
 					IOUtils.writeLong(user.getSocket().getOutputStream(), length);
 					//读取的总长度
 					long sum = 0;
 					byte[] buf = new byte[(int)(1024>length?length:1024)];
-					int len = -1;
-				
 					while(true) {
 						in.read(buf);
 						user.getSocket().getOutputStream().write(buf);
@@ -217,7 +216,6 @@ public class Server {
 							break;
 						}
 						buf = new byte[(int)(1024>(length-sum)?(length-sum):1024)];
-						
 					}
 				
 				} catch (IOException e) {
